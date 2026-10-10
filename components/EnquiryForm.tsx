@@ -5,9 +5,9 @@ import { useRef, useState } from 'react';
 // Zoho WebToLead values (from the published embed code, do not change)
 const ZOHO_ACTION = 'https://crm.zoho.com/crm/WebToLeadForm';
 const HIDDEN = {
-  xnQsjsdp: '7a42eb8ab457fe7ff93ba8f26151ab8a01f960a7135e88c113dee3c4335bcc3b',
+  xnQsjsdp: '70fea2afd8f62e67595657ae00e74d0e2aa2ea4cb92a17d8cc67b9b0ed875c4c',
   xmIwtLD:
-    'fcd29413078e8ccdfcf45f313c97fbea61be4c80a442db19a7f69b9423fff95500037bb4dde5ed99eec8c018e8850d5b',
+    '5898b36aaba46aee9d40bf0b0c8bca73ac6760cbaf445a111b124fc7a5f6c7afd05c38620ad8e0dd1adb377f63f127c8',
   actionType: 'TGVhZHM=',
   returnURL: 'null',
   'Lead Source': 'Website',
@@ -59,18 +59,39 @@ export default function EnquiryForm() {
     setSending(true); // native POST continues into the hidden iframe
   }
 
+  if (submitted) {
+    return (
+      <div className="rounded-xl border p-6 text-center">
+        <h3 className="text-xl font-semibold">Thank you!</h3>
+        <p className="mt-2">Our team will contact you shortly.</p>
+      </div>
+    );
+  }
+
   const input = 'w-full rounded-lg border px-3 py-2';
 
   return (
-    <form
-      ref={formRef}
-      action={ZOHO_ACTION}
-      method="POST"
-      target="_blank"
-      acceptCharset="UTF-8"
-      onSubmit={onSubmit}
-      className="mx-auto grid max-w-xl gap-4"
-    >
+    <>
+      <iframe
+        name="zoho_target"
+        title="zoho"
+        className="hidden"
+        onLoad={() => {
+          if (sending) {
+            setSending(false);
+            setSubmitted(true);
+          }
+        }}
+      />
+      <form
+        ref={formRef}
+        action={ZOHO_ACTION}
+        method="POST"
+        target="zoho_target"
+        acceptCharset="UTF-8"
+        onSubmit={onSubmit}
+        className="mx-auto grid max-w-xl gap-4"
+      >
         {Object.entries(HIDDEN).map(([k, v]) => (
           <input key={k} type="hidden" name={k} value={v} />
         ))}
@@ -107,5 +128,6 @@ export default function EnquiryForm() {
           {sending ? 'Sending...' : 'Submit enquiry'}
         </button>
       </form>
+    </>
   );
 }
